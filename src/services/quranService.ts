@@ -35,11 +35,15 @@ export const quranService = {
         const response = await axios.get(`${BACKUP_API_BASE}/chapters/ar/ar-${surahNumber}.json`);
         if (response.data && Array.isArray(response.data)) {
           const surahInfo = surahs.find(s => s.number === surahNumber);
-          const ayahs: Ayah[] = response.data.map((ayah: any, index: number) => ({
-            number: (surahNumber - 1) * 1000 + index + 1,
-            text: ayah.text || ayah.verse || ayah,
-            numberInSurah: index + 1,
-          }));
+          // Generate unique ayah numbers: base number for surah + ayah position
+          const ayahs: Ayah[] = response.data.map((ayah: any, index: number) => {
+            const ayahText = typeof ayah === 'string' ? ayah : (ayah.text || ayah.verse || '');
+            return {
+              number: (surahNumber - 1) * 1000 + index + 1,
+              text: ayahText,
+              numberInSurah: index + 1,
+            };
+          });
           
           return {
             number: surahNumber,
